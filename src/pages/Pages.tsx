@@ -1,4 +1,4 @@
-import { MetricCard, EmptyState } from '../components/Ui'
+import { MetricCard } from '../components/Ui'
 import { DatasetsView } from '../features/datasets/DatasetsView'
 import { ExperimentsView } from '../features/experiments/ExperimentsView'
 import { FailedCasesView } from '../features/failedCases/FailedCasesView'
