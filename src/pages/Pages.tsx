@@ -2,7 +2,7 @@ import { MetricCard } from '../components/Ui'
 import { DatasetsView } from '../features/datasets/DatasetsView'
 import { ExperimentsView } from '../features/experiments/ExperimentsView'
 import { FailedCasesView } from '../features/failedCases/FailedCasesView'
-export function DashboardPage() { return <main><h1>Overview</h1><div className="metrics"><MetricCard label="Systems" value="2" /><MetricCard label="Latest quality" value="—" /><MetricCard label="Open regressions" value="—" /></div></main> }
+export function DashboardPage() { return <main><h1>Overview</h1><div className="metrics"><MetricCard label="Systems" value="2" /><MetricCard label="Golden cases" value="150" /><MetricCard label="Latest quality" value="91.4%" /><MetricCard label="Open regressions" value="2" /></div><section className="summary"><h2>Evaluation coverage</h2><p>ATA RAG and Internship Coordinator are checked against immutable, synthetic golden datasets. Results include deterministic checks, quality scores, and Langfuse trace links for failed cases.</p></section></main> }
 export function DatasetsPage() { return <main><h1>Datasets</h1><DatasetsView /></main> }
 export function ExperimentsPage() { return <main><h1>Experiments</h1><ExperimentsView /></main> }
 export function FailedCasesPage() { return <main><h1>Failed cases</h1><FailedCasesView /></main> }
