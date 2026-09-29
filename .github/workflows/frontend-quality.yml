@@ -1,0 +1,63 @@
+name: Frontend quality gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'Dockerfile'
+      - 'nginx.conf'
+      - '.github/workflows/**'
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frontend-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-test-build:
+    name: Lint, test, and build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ai-evaluation-frontend-${{ github.sha }}
+          path: dist/
+          if-no-files-found: error
+
+  container-smoke-test:
+    name: Production container smoke test
+    needs: lint-test-build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - run: docker build --tag ai-evaluation-frontend:${{ github.sha }} .
+      - run: docker run --detach --rm --name ai-evaluation-frontend-ci --publish 18081:80 ai-evaluation-frontend:${{ github.sha }}
+      - name: Verify SPA health endpoint
+        run: |
+          for attempt in {1..20}; do
+            if curl --fail --silent --show-error http://127.0.0.1:18081/health; then exit 0; fi
+            sleep 2
+          done
+          echo 'Frontend health endpoint did not become ready.' >&2
+          docker logs ai-evaluation-frontend-ci
+          exit 1
+      - if: always()
+        run: docker stop ai-evaluation-frontend-ci || true
